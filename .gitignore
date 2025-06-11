@@ -1,0 +1,8 @@
+# La sicurezza prima di tutto
+*.env
+*.log
+
+# Output temporanei
+__pycache__/
+*.tmp
+*.bak
