@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'plini0/webapp' 
+        IMAGE_NAME = 'plini0/webapp'
         REGISTRY_CREDENTIALS = 'docker-hub-creds'
+        BUILD_CONTEXT = 'Delivery_esercizio_1'
     }
 
     stages {
@@ -16,7 +17,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.build("${IMAGE_NAME}:latest", ".")
+                    docker.build("${IMAGE_NAME}:latest", "${BUILD_CONTEXT}")
                 }
             }
         }
