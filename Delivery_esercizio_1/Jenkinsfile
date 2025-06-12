@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-                git credentialsId: 'github-creds', url: 'https://github.com/Pl1n10/test_propedeutico.git'
+                git branch: 'main', credentialsId: 'github-creds', url: 'https://github.com/Pl1n10/test_propedeutico.git'
             }
         }
 
