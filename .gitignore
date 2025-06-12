@@ -1,6 +1,8 @@
 # La sicurezza prima di tutto
 *.env
 *.log
+vars/vault.yml
+vars/secret.yml
 
 # Output temporanei
 __pycache__/
