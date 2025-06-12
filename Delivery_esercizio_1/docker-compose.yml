@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  database:
+    image: mariadb:10.11
+    container_name: scatolo_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ricette_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - app_network
+
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: scatolo_web
+    ports:
+      - "8085:80"
+    depends_on:
+      - database
+    environment:
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./uploads:/var/www/html/uploads
+      - ./logs:/var/log/app
+    networks:
+      - app_network
+    restart: unless-stopped
+
+volumes:
+  ricette_data:
+
+networks:
+  app_network:
+    driver: bridge
