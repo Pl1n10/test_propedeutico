@@ -1,0 +1,62 @@
+---
+- name: Deploy dell'applicazione web con Docker Compose
+  hosts: localhost
+  become: true
+  vars_files:
+    - group_vars/all.yml
+    - vault.yml
+
+  tasks:
+    - name: Assicura che git sia installato
+      ansible.builtin.package:
+        name: git
+        state: present
+
+    - name: Assicura che Docker sia installato (Fedora/Debian compatibile)
+      ansible.builtin.package:
+        name: "{{ 'docker.io' if ansible_facts['os_family'] == 'Debian' else 'docker' }}"
+        state: present
+
+    - name: Verifica se Docker Compose V2 è disponibile
+      ansible.builtin.command: docker compose version
+      register: docker_compose_check
+      failed_when: docker_compose_check.rc != 0 and docker_compose_check.rc != 127
+      changed_when: false
+      ignore_errors: true
+
+    - name: Avvia il servizio Docker
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Crea directory di destinazione
+      ansible.builtin.file:
+        path: /opt/app
+        state: directory
+        mode: '0755'
+
+    - name: Clona il repository dell'applicazione
+      ansible.builtin.git:
+        repo: "https://github.com/{{ github_username }}/test_propedeutico.git"
+        dest: /opt/app/test_propedeutico
+        version: main
+        force: yes
+
+    - name: Copia la directory del progetto esercizio 1
+      ansible.builtin.copy:
+        src: /opt/app/test_propedeutico/Delivery_esercizio_1/
+        dest: /opt/app/Delivery_esercizio_1/
+        remote_src: yes
+
+    - name: Crea file .env da template
+      ansible.builtin.template:
+        src: roles/app/templates/env.j2
+        dest: /opt/app/Delivery_esercizio_1/.env
+        mode: '0600'
+
+    - name: Avvia i servizi con Docker Compose
+      community.docker.docker_compose_v2:
+        project_src: /opt/app/Delivery_esercizio_1
+        build: "always"
+        state: present

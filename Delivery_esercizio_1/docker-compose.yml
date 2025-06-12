@@ -13,7 +13,7 @@ services:
     volumes:
       - ricette_data:/var/lib/mysql
     ports:
-      - "3307:3306"
+      - "3308:3306"
     networks:
       - app_network
 
@@ -23,7 +23,7 @@ services:
       dockerfile: Dockerfile
     container_name: scatolo_web
     ports:
-      - "8085:80"
+      - "8086:80"
     depends_on:
       - database
     environment:

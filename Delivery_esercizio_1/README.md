@@ -23,3 +23,18 @@ Il Jenkinsfile esegue i seguenti passaggi:
 
 Il file .env contiene le credenziali del database. 
 La connessione tra PHP e il database è definita all’interno del codice PHP.
+
+Il deploy completo può essere automatizzato con Ansible tramite il playbook deploy.yml.
+Il playbook esegue i seguenti passaggi:
+
+1 Verifica che Docker e Git siano installati 
+2 Avvia il servizio Docker 
+3 Clona il repository 
+4 Copia il progetto nella directory /opt/app
+5 Genera il file .env da template 
+6 Avvia i servizi con docker compose
+
+Per eseguire il deploy:
+
+
+ansible-playbook deploy.yml --ask-vault-pass
