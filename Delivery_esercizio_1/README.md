@@ -1,40 +1,77 @@
-Questo progetto è una configurazione Docker Compose con due servizi:
+Configurazione webapp PHP + MariaDB
+Questo progetto utilizza Docker Compose per avviare due servizi:
 
-db: container MariaDB per i dati 
-web: container PHP con Apache che si connette al database, registra gli accessi con data e IP, e mostra le ultime due visite
+db: container MariaDB per la persistenza dei dati
 
-Scelte tecniche 
-Ho usato php:8.2-apache perché è pratico - ha già PHP e Apache configurati insieme, è stabile e non richiede setup particolari. 
-Il progetto usa un file .env per i parametri del database.
+web: container PHP con Apache, che si connette al database, registra data e IP degli accessi, e mostra le ultime due visite
 
-La cartella html/ contiene il codice PHP dell’applicazione. 
-I dati vengono salvati su MariaDB in una tabella visite.
+Struttura del progetto
+html/: contiene il codice PHP dell’applicazione
 
-È presente un file docker-compose.yml per avviare i container. 
-Con il comando docker-compose up -d si avviano i servizi e l'applicazione è disponibile su localhost:8085.
+docker-compose.yml: definisce i servizi
 
-È stato configurato un Jenkinsfile che automatizza la build dell'immagine del container web e la pubblicazione su Docker Hub.
+.env: contiene i parametri di configurazione del database
 
-Il Jenkinsfile esegue i seguenti passaggi:
+Jenkinsfile: automatizza la build e il push dell'immagine web
 
-1 Clona il repository da GitHub
-2 Costruisce l'immagine Docker a partire dalla cartella Delivery_esercizio_1
-3 Effettua il push dell'immagine su Docker Hub nel repository plini0/webapp con il tag latest
+deploy.yml: playbook Ansible per il deploy remoto
 
-Il file .env contiene le credenziali del database. 
-La connessione tra PHP e il database è definita all’interno del codice PHP.
+Scelte tecniche
+È stato usato php:8.2-apache per semplicità, stabilità e integrazione immediata tra PHP e Apache. Il database è MariaDB. Il file .env gestisce le credenziali e i parametri principali.
 
-Il deploy completo può essere automatizzato con Ansible tramite il playbook deploy.yml.
-Il playbook esegue i seguenti passaggi:
+Requisiti
+Docker e Docker Compose installati
 
-1 Verifica che Docker e Git siano installati 
-2 Avvia il servizio Docker 
-3 Clona il repository 
-4 Copia il progetto nella directory /opt/app
-5 Genera il file .env da template 
-6 Avvia i servizi con docker compose
+(facoltativo) Jenkins per build e deploy automatizzato
+
+(facoltativo) Ansible per il deploy remoto
+
+Esecuzione locale (dry run)
+Clonare il repository:
+git clone https://github.com/Pl1n10/test_propedeutico.git
+cd test_propedeutico/Delivery_esercizio_1
+Creare un file .env partendo da .env.example (o definire le variabili in shell):
+
+DB_NAME=webapp
+DB_USER=webuser
+DB_PASSWORD=secret
+DB_ROOT_PASSWORD=rootpass
+
+docker compose up -d
+
+Aprire il browser su http://localhost:8085
+
+Jenkins
+Il file Jenkinsfile automatizza:
+
+Clonazione del repository da GitHub
+
+Build dell’immagine del servizio web
+
+Push su Docker Hub nel repository plini0/webapp:latest
+
+Ansible
+Il playbook deploy.yml automatizza il deploy remoto:
+
+Verifica che Docker e Git siano presenti
+
+Avvia Docker
+
+Clona il repository
+
+Copia il progetto in /opt/app
+
+Genera .env da template
+
+Avvia i container con docker compose
 
 Per eseguire il deploy:
 
-
 ansible-playbook deploy.yml --ask-vault-pass
+
+Le variabili d’ambiente usate sono:
+
+DB_NAME	Nome del database
+DB_USER	Utente del database
+DB_PASSWORD	Password dell’utente
+DB_ROOT_PASSWOR	Password dell’utente root
