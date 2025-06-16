@@ -1,0 +1,74 @@
+---
+- name: Installazione Docker su tutti i nodi
+  hosts: all
+  become: true
+  tasks:
+    - name: Install dependencies
+      apt:
+        name: ['apt-transport-https', 'ca-certificates', 'curl', 'software-properties-common']
+        update_cache: yes
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker APT repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+        filename: docker
+
+    - name: Install Docker Engine
+      apt:
+        name: ['docker-ce', 'docker-ce-cli', 'containerd.io']
+        state: present
+        update_cache: yes
+
+    - name: Enable and start Docker
+      systemd:
+        name: docker
+        enabled: true
+        state: started
+
+- name: Inizializza Swarm sul nodo manager
+  hosts: manager
+  become: true
+  tasks:
+    - name: Get manager IP
+      command: hostname -I
+      register: manager_ip_raw
+
+    - name: Estrai IP principale del manager
+      set_fact:
+        manager_ip: "{{ manager_ip_raw.stdout.split()[0] }}"
+
+    - name: Inizializza Docker Swarm
+      shell: docker swarm init --advertise-addr {{ manager_ip }}
+      register: swarm_init_output
+      changed_when: "'Swarm initialized' in swarm_init_output.stdout"
+
+    - name: Estrai il token per i worker
+      shell: docker swarm join-token -q worker
+      register: worker_token
+
+    - name: Salva token e IP per i worker
+      set_fact:
+        swarm_worker_token: "{{ worker_token.stdout }}"
+        swarm_manager_ip: "{{ manager_ip }}"
+
+    - name: Mostra token (debug, opzionale)
+      debug:
+        msg: "Token per i worker: {{ swarm_worker_token }} - Manager IP: {{ swarm_manager_ip }}"
+
+- name: Unisci i worker al cluster
+  hosts: workers
+  become: true
+  vars:
+    swarm_worker_token: "{{ hostvars['swarm-node-1']['swarm_worker_token'] }}"
+    swarm_manager_ip: "{{ hostvars['swarm-node-1']['swarm_manager_ip'] }}"
+  tasks:
+    - name: Join swarm
+      shell: docker swarm join --token {{ swarm_worker_token }} {{ swarm_manager_ip }}:2377
+      register: join_result
+      changed_when: "'This node joined a swarm as a worker' in join_result.stdout"
