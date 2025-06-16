@@ -14,3 +14,13 @@ Ansible
 Distribuzione Linux (es. Ubuntu Server 22.04)
 
 Docker Engine (per il cluster Swarm)
+
+
+
+##comandi per il provisioning:
+
+cd Delivery_esercizio_2/terraform
+cp terraform.tfvars.example terraform.tfvars  # Modifica i valori reali nel nuovo file
+terraform init
+terraform plan
+terraform apply

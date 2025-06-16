@@ -1,0 +1,16 @@
+# Proxmox credentials
+pm_api_url      = "https://192.168.1.10:8006/api2/json"
+pm_user         = "root@pam"
+pm_password     = "inserisci-qui-la-tua-password"
+pm_tls_insecure = true
+
+# VM config
+vm_template     = "ubuntu-template"
+vm_node         = "pve"
+vm_storage      = "local-lvm"
+vm_bridge       = "vmbr0"
+
+# Cloud-init config
+ci_user             = "ubuntu"
+ci_password         = "ubuntu"
+ssh_public_key_path = "~/.ssh/id_rsa.pub"
