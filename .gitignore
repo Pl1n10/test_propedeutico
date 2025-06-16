@@ -9,3 +9,6 @@ __pycache__/
 *.tmp
 *.bak
 terraform.tfvars
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
