@@ -8,3 +8,4 @@ vars/secret.yml
 __pycache__/
 *.tmp
 *.bak
+terraform.tfvars
